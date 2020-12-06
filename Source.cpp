@@ -90,7 +90,7 @@ public:
 		this->numeTabel = numeTabel;
 		this->nrColoane = nrColoane;
 		this->coloane = new Coloana[nrColoane];
-		for (int i=0; i<nrColoane; i++) {
+		for (int i = 0; i < nrColoane; i++) {
 			this->coloane[i] = Coloana(coloane[i]);
 		}
 	}
@@ -190,12 +190,12 @@ private:
 				nrColoane++;
 			}
 			this->nrTabele++; //aici se incrementeaza numarul tabelelor
-			
+
 			// mai jos am incercat sa mai aloc memorie pentru ca sa intre inca o tabela
 			//daca exista vreo functie pentru asta incearca sa o folosesti tu 
 
 			Tabel* temp = new Tabel[this->nrTabele];
-			for (int i = 0; i < this->nrTabele-1; i++) {
+			for (int i = 0; i < this->nrTabele - 1; i++) {
 				temp[i] = this->tabele[i];
 			}
 
@@ -212,7 +212,7 @@ private:
 			}
 
 			this->tabele[this->nrTabele - 1] = Tabel(this->instructiuniSintaxa[2], nrColoane, coloane);
-			
+
 			delete[] coloane;
 			delete[] numeColoana;
 			delete[] tip;
@@ -229,7 +229,7 @@ private:
 		if (this->nrTabele > 0) {
 			for (int i = 0; i < this->nrTabele; i++) {
 				cout << this->tabele[i].numeTabel << endl;
-				for (int j=0; j < this->tabele[i].nrColoane; j++) {
+				for (int j = 0; j < this->tabele[i].nrColoane; j++) {
 					cout << this->tabele[i].coloane[j].getNumeColoana() << " " << tabele[i].coloane[j].getTip() << " " << tabele[i].coloane[j].getDimensiune() << " " << tabele[i].coloane[j].getValoareImplicita() << endl;
 				}
 			}
@@ -257,12 +257,12 @@ private:
 		for (int i = 0; i < this->nrTabele; i++) {
 			if (this->tabele[i].numeTabel == numeTabel) {
 				cout << this->tabele[i].numeTabel << endl;
-				for (int j=0; j<this->tabele[i].nrColoane; j++) {
+				for (int j = 0; j < this->tabele[i].nrColoane; j++) {
 					cout << this->tabele[i].coloane[j].getValoareImplicita() << endl;
 				}
 				verificare = true;
 				break;
-				
+
 			}
 		}
 		if (!verificare) {
@@ -283,7 +283,7 @@ private:
 				temp[i] = this->tabele[i];
 			}
 			delete[] this->tabele;
-			
+
 			if (this->nrTabele - 1 > 0) {
 				int j = 0;
 				this->tabele = new Tabel[this->nrTabele - 1];
@@ -304,6 +304,25 @@ private:
 		}
 	}
 
+	void inserareInTabel(int pozNumeTabel, int pozInceput, int pozFinal) {
+		for (int i = pozInceput; i < pozFinal; i++) {
+			cout << this->instructiuniSintaxa[i];
+		}
+
+		int semafor = 1;
+
+		for (int i = 0; i < this->nrTabele; i++) {
+			if (this->tabele[i].numeTabel != this->instructiuniSintaxa[pozNumeTabel]) {
+				semafor = 0;
+			}
+		}
+
+		if (!semafor) {
+			throw ExceptionTableNotExisting();
+		}
+
+	}
+
 public:
 	BazaDate() {
 		this->numeBazaDate = new char[strlen("Default") + 1];
@@ -319,7 +338,7 @@ public:
 		this->nrCaractereInstructiuni = 0;
 	}
 
-	BazaDate (char* nume, string comanda) {
+	BazaDate(char* nume, string comanda) {
 		this->numeBazaDate = new char[strlen(nume) + 1];
 		strcpy(this->numeBazaDate, nume);
 		this->comanda = comanda;
@@ -364,6 +383,33 @@ public:
 		else if (this->instructiuniSintaxa[0] == "DELETE" && this->instructiuniSintaxa[1] == "TABLE") {
 			this->stergereTabel(this->instructiuniSintaxa[2]);
 			this->afisareStructuraTabele();
+		}
+		else if(this->instructiuniSintaxa[0] == "SELECT"){
+			//int i = 1;
+			int pozInceput = 1, pozFinal = pozInceput;
+			while (this->instructiuniSintaxa[pozFinal] != "FROM" && pozFinal < this->nrInstructiuni) {
+				//cout << this->instructiuniSintaxa[i] << endl;
+				pozFinal++;
+			}
+
+			if (this->instructiuniSintaxa[pozFinal] != "FROM") {
+				throw ExceptionInvalidCommand();
+			}
+			for (int i = pozInceput; i < pozFinal; i++) {
+				cout << this->instructiuniSintaxa[i] ;
+			}
+			if (pozInceput = pozFinal - 1) { //Select all
+				afisareTabel(this->instructiuniSintaxa[pozFinal+1]);
+			}
+
+		}
+		else if(this->instructiuniSintaxa[0] == "INSERT" && this->instructiuniSintaxa[1] == "INTO"){
+			int pozNumeTabel = 2;
+			int inceputColoaneTemplate = 3, finalColoaneTemplate=inceputColoaneTemplate;
+			while (finalColoaneTemplate < this->nrInstructiuni && this->instructiuniSintaxa[finalColoaneTemplate] != "VALUES") {
+				finalColoaneTemplate++;
+			}
+			this->inserareInTabel(pozNumeTabel, inceputColoaneTemplate, finalColoaneTemplate);
 		}
 		else {
 			throw ExceptionInvalidCommand();
